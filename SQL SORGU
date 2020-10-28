@@ -1,0 +1,32 @@
+USE KUTUPHANE;
+ALTER table ogrenci ADD BaşarıDurumu varchar(10);/* ÖNCE BU SORGUYU ÇALIŞTIRMAMIZ GEREKİYOR.SORGU ÇALIŞTIKTAN SONRA
+ogrenci TABLOSUNA BaşarıDurumu DİYE YENİ BİR SÜTUN EKLENECEK.*/
+
+DECLARE @Sayac INT = 1;
+
+WHILE @Sayac < 1001 BEGIN 
+
+IF (SELECT ogrenci.puan FROM ogrenci WHERE ogrno=@Sayac)>70
+		BEGIN  
+			UPDATE ogrenci SET BaşarıDurumu='BAŞARILI' WHERE ogrno=@Sayac;
+		END
+	ELSE 
+		BEGIN
+			UPDATE ogrenci SET BaşarıDurumu='BAŞARISIZ' WHERE ogrno=@Sayac;
+		END
+
+SET @Sayac += 1;
+END;/*burda döngü kurduk toplam kayıt 1000 oldugu için döngüyü 1000 kez tekrarlayacak şekilde  ve her tekrarda ogrno sayaca 
+eşit olan kayıtlardan ogrenci puanı 70 den büyükse baaynı satıdaki baarıdurumu sütunu başarılı olarak
+ değilse başarısız olarak güncellenecek */
+
+SELECT ogrenci.ogrno AS ÖğrenciNo ,ogrenci.ad+' '+ogrenci.soyad AS ÖğrenciAdı,ogrenci.puan AS Puan,ogrenci.BaşarıDurumu,
+ kitap.ad AS Kitap,
+tur.ad AS Türü,yazar.ad+' '+yazar.soyad AS Yazar from ogrenci,kitap,tur,yazar,islem
+where ogrenci.ogrno=islem.ogrno AND islem.kitapno=kitap.kitapno AND
+kitap.yazarno=yazar.yazarno AND kitap.turno=tur.turno AND ogrenci.ogrno='956' AND (kitap.ad='Son Kahraman'or kitap.ad='Atatürk' or kitap.ad='Nasrettin Hoca Fıkraları');
+;
+/*burda da ınner join de kullanabilrdim ama select kullanmayı tercih ettim.burada dagörseldeki sütunları gene as kullanarak
+görseldeki takma adlara çevirdik. ve bunları listeledik ama sadece bu  değil ayrıca görselin aynısı olması için aynı 
+where komutu ile çeşitli şartlar olusturdum.ayrıca öğrenci adı ile
+soyadı ayrı sütunda olduğundan ve yazar adı ile soyadıda aynı durumdan olduğundan + parametresi ile sütunları birleştirdik */
